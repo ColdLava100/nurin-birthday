@@ -864,6 +864,117 @@
                 transform: translateX(var(--drift-x)) translateY(calc(100vh + 60px)) rotate(var(--spin)) scale(1);
             }
         }
+
+        /* ========== PLUSHIE GIFT CARDS ========== */
+        #plushie-section {
+            background: var(--cream);
+            padding: 60px 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .plushie-title {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: var(--strawberry-dark);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .plushie-subtitle {
+            font-size: 0.9rem;
+            color: var(--charcoal-light);
+            text-align: center;
+            margin-bottom: 2.5rem;
+            opacity: 0.6;
+        }
+
+        .plushie-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .plushie-card {
+            width: 160px;
+            background: var(--white);
+            border-radius: 20px;
+            padding: 20px 16px 24px;
+            text-align: center;
+            box-shadow: 0 6px 24px rgba(61, 44, 44, 0.08);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            opacity: 0;
+            animation: plushieIn 0.6s ease forwards;
+            animation-delay: var(--delay);
+            cursor: pointer;
+        }
+
+        .plushie-card:active {
+            transform: scale(0.97);
+        }
+
+        .plushie-card::before {
+            content: '🎀';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.4rem;
+            z-index: 2;
+        }
+
+        .plushie-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--matcha), var(--strawberry), var(--cheesecake));
+        }
+
+        .plushie-card .plushie-img-wrap {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 12px auto 14px;
+            border: 3px solid var(--matcha-light);
+            box-shadow: 0 4px 12px rgba(168, 213, 186, 0.2);
+        }
+
+        .plushie-card .plushie-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .plushie-card .plushie-name {
+            font-family: 'Caveat', cursive;
+            font-size: 1.3rem;
+            color: var(--charcoal);
+            margin-bottom: 4px;
+        }
+
+        .plushie-card .plushie-label {
+            font-size: 0.7rem;
+            color: var(--charcoal-light);
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @keyframes plushieIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
         #finale {
             text-align: center;
             min-height: 100vh;
@@ -994,7 +1105,7 @@
                     <span id="letter-text"></span>
                     <span class="cursor" id="letter-cursor"></span>
                 </div>
-                <div class="letter-signature" id="letter-signature">— Amin 💛</div>
+                <div class="letter-signature" id="letter-signature">— Amin</div>
             </div>
         </div>
     </section>
@@ -1008,42 +1119,42 @@
                     <div class="timeline-dot"></div>
                     <div class="timeline-card">
                         <div class="era">Kecil-kecil</div>
-                        <div class="desc">Hidup dengan mak sampai umur 5. Lepas tu mak pergi. Nenek ambil alih — dan dia jaga Nurin sampai sekarang. Itu bond yang tak ternilai.</div>
+                        <div class="desc">Hidup dengan mak sampai umur 5. Lepas tu mak pergi. Wan ambil alih,jaga Nurin sampai sekarang.</div>
                     </div>
                 </div>
                 <div class="timeline-node">
                     <div class="timeline-dot"></div>
                     <div class="timeline-card">
                         <div class="era">Sekolah Agama</div>
-                        <div class="desc">Primary sampai secondary. Kat sini, dia belajar survive. Dan jumpa kawan-kawan sejati — Ami, Nisa, Nadia, Meon. Orang yang kekal.</div>
+                        <div class="desc">Sekolah Rendah dan Sekolah Menengah. Kat sini, memupuk dan membentuk seorang Nurin. Dapat kenal Ami, Nisa, Nadia, Meon dan ramai lagii.</div>
                     </div>
                 </div>
                 <div class="timeline-node">
                     <div class="timeline-dot"></div>
                     <div class="timeline-card">
                         <div class="era">Pilihan Besar</div>
-                        <div class="desc">IPG atau KPM? Nampak mudah, tapi decision ni makan masa. Akhirnya dia pilih KPM. Dan itu the right call.</div>
+                        <div class="desc">Antara IPG atau KPM. Pergi atau stay? Antara keputusan paling rumit untuk buat sebab boleh bagi kesan sampingan terhadap masa depan. Selepas difikirkan, Nurin pilih untuk kekal di KPM dan kekal dengan takdir.</div>
                     </div>
                 </div>
                 <div class="timeline-node">
                     <div class="timeline-dot"></div>
                     <div class="timeline-card">
                         <div class="era">Titik Perubahan</div>
-                        <div class="desc">Internship jumpa — tapi transport? Puchong ke Bangi. Dua pilihan: naik kereta stepmother, atau belajar drive sendiri. Dia pilih dua-dua sekaligus. Brave.</div>
+                        <div class="desc">Internship dah jumpa, tapi jarak jauh. Terpaksa kuatkan diri buat pilihan untuk belajar driving kereta. Takut, tak yakin, semua ada. Banyak doubt diri sendiri, "Betul ke apa yang aku buat ni". Tapi nak tak nak, hidup mesti diteruskan.</div>
                     </div>
                 </div>
                 <div class="timeline-node">
                     <div class="timeline-dot"></div>
                     <div class="timeline-card">
-                        <div class="era">Siapa Dia Sekarang</div>
-                        <div class="desc">Boleh drive. Pergi kerja sendiri. Strong, brave, independent. Sedikit clumsy — tapi pretty, cute, sweet, lovely. Malam-malam lepas kerja, training silat Waja Diri.</div>
+                        <div class="era">Sekarang</div>
+                        <div class="desc">Dah boleh drive sendiri. Pergi kerja sendiri. Berani, Kuat, independent. Tak cukup dengan tu, luangkan malam hari untuk Silat, Waja Diri (Wanita Hebat).</div>
                     </div>
                 </div>
                 <div class="timeline-node">
                     <div class="timeline-dot"></div>
                     <div class="timeline-card">
                         <div class="era">Masa Depan</div>
-                        <div class="desc">Orang dengan charisma, talent, charm. Semoga capai semua impian. Jaga kebahagiaan dan ketenangan kau selalu. Kau deserve semua yang baik.</div>
+                        <div class="desc">Insyallah dengan izinnya, Nurin akan jadi seorang yang berkarisma, berkredibiliti, bersyukur, berwibawa dan segala ber yang ada. Semoga segala semoga itu, semoga ini dapat direleasasikan.</div>
                     </div>
                 </div>
             </div>
@@ -1054,7 +1165,7 @@
     <section id="beauty-section">
         <div class="category-header" style="margin-top:0">
             <div class="category-name"><span class="cat-emoji">✨</span> Beauty <span class="cat-emoji">✨</span></div>
-            <div class="category-desc">Cantik tu dari dalam</div>
+            <div class="category-desc">Senyum Seluas Angkasa</div>
         </div>
         <div class="beauty-wall" id="beauty-wall"></div>
     </section>
@@ -1069,7 +1180,7 @@
     <!-- SECTION 5: FOOD — FLOATING COLLAGE -->
     <section id="gallery" class="section">
         <h2 class="gallery-title">Makan Lagi? 🍜</h2>
-        <p class="gallery-subtitle">Tekan mana-mana foto untuk lihat</p>
+        <p class="gallery-subtitle">Hidup untuk MAKANNNNN</p>
         <div class="collage-container" id="collage-container">
             <!-- Photos injected by JS -->
         </div>
@@ -1079,7 +1190,7 @@
     <section id="clumsy-section">
         <div class="category-header">
             <div class="category-name"><span class="cat-emoji">🫠</span> Clumsy <span class="cat-emoji">🫠</span></div>
-            <div class="category-desc">Graceful? Never heard of her.</div>
+            <div class="category-desc">Kenurinan</div>
         </div>
         <div class="clumsy-grid" id="clumsy-grid"></div>
     </section>
@@ -1088,10 +1199,17 @@
     <section id="sleeppy-section">
         <div class="category-header">
             <div class="category-name"><span class="cat-emoji">😴</span> Sleeppy <span class="cat-emoji">😴</span></div>
-            <div class="category-desc">Tidur adalah hobi</div>
+            <div class="category-desc">Sleeping Beauty</div>
         </div>
         <div class="sleeppy-strip" id="sleeppy-strip"></div>
         <div class="sleeppy-scroll-hint">← swipe →</div>
+    </section>
+
+    <!-- SECTION 7B: PLUSHIE GIFT CARDS -->
+    <section id="plushie-section">
+        <h2 class="plushie-title">Kawan-Kawan Stuffed 🧸</h2>
+        <p class="plushie-subtitle">Matcha, Mimo, & Momo — teman setia</p>
+        <div class="plushie-grid" id="plushie-grid"></div>
     </section>
 
     <!-- SECTION 8: SECRETS -->
@@ -1106,7 +1224,9 @@
                         <span>Untuk kau yang selalu tersenyum</span>
                     </div>
                     <div class="envelope-peek">
-                        <p>Kau tahu tak, senyuman kau tu buat hari orang lain better? Teruskan jadi diri kau. Yang clumsy, yang sweet, yang real. Itu yang buat kau unik.</p>
+                        <p>Senyum tu kan sedekah? Kekallah tersenyum sentiasa.
+                            Tapi ingat, kau pun manusia gak, kau layak untuk rasa sedih, kecewa, marah. Jangan simpan semua tu dalam hati. Luahkan, tapi jangan sampai kau sakitkan diri sendiri.
+                        </p>
                     </div>
                 </div>
                 <div class="envelope" onclick="toggleEnvelope(this)">
@@ -1124,7 +1244,7 @@
                         <span>Satu perkara yang aku respect</span>
                     </div>
                     <div class="envelope-peek">
-                        <p>Kau belajar drive DAN mula internship pada masa yang sama. Ramai orang tak berani. Kau? Kau terus buat. Itu keberanian yang sebenar.</p>
+                        <p>Pendirian yang teguh once dah buat keputusan, ada target, objektif yang nak dicapai dalam perbuatan.</p>
                     </div>
                 </div>
                 <div class="envelope" onclick="toggleEnvelope(this)">
@@ -1133,7 +1253,7 @@
                         <span>Prediction untuk kau</span>
                     </div>
                     <div class="envelope-peek">
-                        <p>Waja Diri ni baru permulaan. Lepas ni, kau akan buat benda-benda yang orang tak expect kau boleh buat. And you'll crush it.</p>
+                        <p>Kau akan terus memanjat gunung-ganang kat seluruh Malaysia ni, eventually, akan sampai ke luar negara.</p>
                     </div>
                 </div>
                 <div class="envelope" onclick="toggleEnvelope(this)">
@@ -1142,7 +1262,7 @@
                         <span>Untuk masa depan kau</span>
                     </div>
                     <div class="envelope-peek">
-                        <p>Semoga kau selalu ada peace dalam hati. Semoga kau jumpa apa yang kau cari. Dan semoga kau tahu — orang sekeliling kau bangga dengan kau. Termasuk aku.</p>
+                        <p>Semoga kau selalu ada ketenangan dalam hati. Semoga kau jumpa apa yang kau cari. Dan semoga kau tahu — orang sekeliling kau bangga dengan kau. Termasuk aku.</p>
                     </div>
                 </div>
             </div>
@@ -1466,6 +1586,61 @@ Selamat 20! Congrats dah survive bertahun-tahun before ni, aku bangga dengan kau
         setTimeout(() => {
             document.getElementById('scroll-hint').style.opacity = '0.5';
         }, 1800);
+
+        // ========== PLUSHIE GIFT CARDS ==========
+        const plushiePhotos = [
+            { file: 'others/plushie/matcha.jpg', name: 'Matcha', label: 'Green bean' },
+            { file: 'others/plushie/mimo.jpg', name: 'Mimo', label: 'The round one' },
+            { file: 'others/plushie/momo.jpg', name: 'Momo', label: 'Peachy' },
+        ];
+
+        function buildPlushieCards() {
+            const grid = document.getElementById('plushie-grid');
+            if (!grid || grid.children.length > 0) return;
+
+            plushiePhotos.forEach((plushie, i) => {
+                const card = document.createElement('div');
+                card.className = 'plushie-card';
+                card.style.setProperty('--delay', (i * 0.15) + 's');
+
+                const imgWrap = document.createElement('div');
+                imgWrap.className = 'plushie-img-wrap';
+                const img = document.createElement('img');
+                img.src = plushie.file;
+                img.alt = plushie.name;
+                img.loading = 'lazy';
+                img.onerror = function() {
+                    this.style.display = 'none';
+                    this.parentElement.style.background = 'linear-gradient(135deg, var(--matcha-light), var(--strawberry-light))';
+                };
+                imgWrap.appendChild(img);
+
+                const name = document.createElement('div');
+                name.className = 'plushie-name';
+                name.textContent = plushie.name;
+
+                const label = document.createElement('div');
+                label.className = 'plushie-label';
+                label.textContent = plushie.label;
+
+                card.appendChild(imgWrap);
+                card.appendChild(name);
+                card.appendChild(label);
+                grid.appendChild(card);
+            });
+        }
+
+        let plushieBuilt = false;
+        const plushieObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !plushieBuilt) {
+                    plushieBuilt = true;
+                    setTimeout(buildPlushieCards, 200);
+                }
+            });
+        }, { threshold: 0.1 });
+        const plushieEl = document.getElementById('plushie-section');
+        if (plushieEl) plushieObserver.observe(plushieEl);
 
         // ========== OTHERS: BEAUTY POLAROID WALL ==========
         const beautyPhotos = [
