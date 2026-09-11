@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Selamat Hari Jadi, Nurin!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --matcha: #A8D5BA;
+            --matcha-light: #C8E6D0;
+            --matcha-dark: #7BB898;
+            --matcha-deep: #5A9E76;
+            --strawberry: #F4A7BB;
+            --strawberry-light: #FCC5D3;
+            --strawberry-dark: #E8849E;
+            --cheesecake: #E8C170;
+            --cheesecake-dark: #D4A843;
+            --cream: #FFF8F0;
+            --cream-warm: #FFF0E0;
+            --charcoal: #3D2C2C;
+            --charcoal-light: #5A4444;
+            --white: #FFFFFF;
+            --bg-overlay: rgba(255, 248, 240, 0.92);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            color: var(--charcoal);
+            background: var(--cream);
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ========== THREE.JS CANVAS ========== */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ========== PASSWORD GATE ========== */
+        #password-gate {
+            display: none;
+        }
+
+        #password-gate.unlocked {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+
+        .gate-title {
+            font-family: 'Caveat', cursive;
+            font-size: 2.2rem;
+            color: var(--strawberry-light);
+            margin-bottom: 2rem;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .gate-input-wrap {
+            position: relative;
+            width: 280px;
+            max-width: 80vw;
+        }
+
+        .gate-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid rgba(168, 213, 186, 0.4);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--white);
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.1rem;
+            text-align: center;
+            letter-spacing: 3px;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .gate-input::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+            letter-spacing: 1px;
+        }
+
+        .gate-input:focus {
+            border-color: var(--matcha);
+            box-shadow: 0 0 20px rgba(168, 213, 186, 0.3);
+        }
+
+        .gate-btn {
+            margin-top: 1.2rem;
+            padding: 12px 40px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, var(--matcha), var(--matcha-dark));
+            color: var(--white);
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(168, 213, 186, 0.4);
+        }
+
+        .gate-btn:active { transform: scale(0.95); }
+
+        .gate-error {
+            color: var(--strawberry-light);
+            font-size: 0.85rem;
+            margin-top: 0.8rem;
+            min-height: 1.2em;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .gate-error.show { opacity: 1; }
+
+        .gate-hint {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        /* ========== SECTIONS COMMON ========== */
+        .section {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 24px;
+        }
+
+        .section-content {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        /* ========== OPENING ========== */
+        #opening {
+            text-align: center;
+            min-height: 100vh;
+            background: transparent;
+        }
+
+        .rainbow-title {
+            font-family: 'Caveat', cursive;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.3;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1.2s ease, transform 1.2s ease;
+        }
+
+        .rainbow-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .rainbow-title .word {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--strawberry), var(--cheesecake), var(--matcha), var(--strawberry-light), var(--cheesecake));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: rainbowShift 4s ease-in-out infinite;
+        }
+
+        @keyframes rainbowShift {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 200% center; }
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--charcoal-light);
+            margin-top: 1.5rem;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .subtitle.visible { opacity: 0.8; transform: translateY(0); }
+
+        .scroll-hint {
+            margin-top: 3rem;
+            opacity: 0;
+            transition: opacity 1s ease;
+            animation: bounce 2s infinite 2.5s;
+        }
+
+        .scroll-hint.visible { opacity: 0.5; }
+
+        .scroll-hint svg { width: 28px; height: 28px; fill: var(--charcoal-light); }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        /* ========== LETTER ========== */
+        #letter {
+            background: var(--bg-overlay);
+            backdrop-filter: blur(8px);
+        }
+
+        .letter-paper {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 40px 32px;
+            box-shadow: 0 8px 40px rgba(61, 44, 44, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .letter-paper::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--matcha), var(--strawberry), var(--cheesecake));
+        }
+
+        .letter-heading {
+            font-family: 'Caveat', cursive;
+            font-size: 1.8rem;
+            color: var(--strawberry-dark);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .letter-body {
+            font-size: 1.05rem;
+            line-height: 2;
+            color: var(--charcoal);
+            white-space: pre-wrap;
+        }
+
+        .letter-body .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.1em;
+            background: var(--strawberry);
+            margin-left: 2px;
+            vertical-align: text-bottom;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .letter-signature {
+            font-family: 'Caveat', cursive;
+            font-size: 1.4rem;
+            color: var(--matcha-dark);
+            text-align: right;
+            margin-top: 2rem;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .letter-signature.visible { opacity: 1; }
+
+        /* ========== TIMELINE ========== */
+        #journey {
+            background: var(--bg-overlay);
+            backdrop-filter: blur(8px);
+        }
+
+        .journey-title {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: var(--matcha-dark);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px; top: 0; bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--matcha), var(--strawberry), var(--cheesecake));
+            border-radius: 3px;
+        }
+
+        .timeline-node {
+            position: relative;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .timeline-node.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -26px; top: 6px;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            border: 3px solid var(--white);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .timeline-node:nth-child(1) .timeline-dot { background: var(--matcha); }
+        .timeline-node:nth-child(2) .timeline-dot { background: var(--matcha-dark); }
+        .timeline-node:nth-child(3) .timeline-dot { background: var(--strawberry); }
+        .timeline-node:nth-child(4) .timeline-dot { background: var(--strawberry-dark); }
+        .timeline-node:nth-child(5) .timeline-dot { background: var(--cheesecake); }
+        .timeline-node:nth-child(6) .timeline-dot { background: var(--matcha-deep); }
+
+        .timeline-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(61, 44, 44, 0.06);
+            border-left: 3px solid var(--matcha);
+        }
+
+        .timeline-card .era {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--matcha-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-card .desc {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--charcoal);
+        }
+
+        /* ========== GALLERY — FLOATING COLLAGE ========== */
+        #gallery {
+            min-height: 100vh;
+            background: var(--cream);
+            overflow: hidden;
+            position: relative;
+            display: block;
+            padding: 40px 0;
+        }
+
+        .gallery-title {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: var(--strawberry-dark);
+            text-align: center;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 20;
+        }
+
+        .gallery-subtitle {
+            font-size: 0.9rem;
+            color: var(--charcoal-light);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            opacity: 0.6;
+            position: relative;
+            z-index: 20;
+        }
+
+        .collage-container {
+            position: relative;
+            width: 100%;
+            height: 75vh;
+            min-height: 500px;
+            overflow: hidden;
+        }
+
+        .collage-photo {
+            position: absolute;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(61, 44, 44, 0.15);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0s;
+            will-change: transform;
+            animation: floatDrift var(--dur) ease-in-out infinite var(--delay);
+        }
+
+        .collage-photo:active {
+            transform: scale(1.08) rotate(0deg) !important;
+            box-shadow: 0 8px 30px rgba(61, 44, 44, 0.25);
+            z-index: 50 !important;
+        }
+
+        .collage-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .collage-photo .photo-caption-float {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px 10px;
+            background: linear-gradient(transparent, rgba(61, 44, 44, 0.7));
+            color: var(--white);
+            font-size: 0.65rem;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .collage-photo:active .photo-caption-float {
+            opacity: 1;
+        }
+
+        @keyframes floatDrift {
+            0%, 100% {
+                transform: translateY(0) rotate(var(--rot));
+            }
+            25% {
+                transform: translateY(var(--drift-y)) translateX(var(--drift-x)) rotate(calc(var(--rot) + 2deg));
+            }
+            50% {
+                transform: translateY(calc(var(--drift-y) * -0.5)) rotate(calc(var(--rot) - 1deg));
+            }
+            75% {
+                transform: translateY(var(--drift-y)) translateX(calc(var(--drift-x) * -1)) rotate(calc(var(--rot) + 1.5deg));
+            }
+        }
+
+        /* Lightbox for tapped photo */
+        .lightbox-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 500;
+            background: rgba(0,0,0,0.88);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lightbox-overlay img {
+            max-width: 90vw;
+            max-height: 75vh;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        .lightbox-caption {
+            color: var(--white);
+            font-family: 'Caveat', cursive;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            opacity: 0.8;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px; right: 20px;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+
+        /* ========== SECRETS ========== */
+        #secrets {
+            background: var(--bg-overlay);
+            backdrop-filter: blur(8px);
+        }
+
+        .secrets-title {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: var(--cheesecake-dark);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .secrets-subtitle {
+            font-size: 0.9rem;
+            color: var(--charcoal-light);
+            text-align: center;
+            margin-bottom: 2rem;
+            opacity: 0.7;
+        }
+
+        .envelope-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .envelope {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 4px 20px rgba(61, 44, 44, 0.06);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .envelope:active { transform: scale(0.97); }
+
+        .envelope .envelope-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .envelope .envelope-icon {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .envelope:nth-child(1) .envelope-icon { background: var(--matcha-light); }
+        .envelope:nth-child(2) .envelope-icon { background: var(--strawberry-light); }
+        .envelope:nth-child(3) .envelope-icon { background: linear-gradient(135deg, var(--cheesecake), var(--matcha-light)); }
+        .envelope:nth-child(4) .envelope-icon { background: var(--strawberry-light); }
+        .envelope:nth-child(5) .envelope-icon { background: var(--matcha-light); }
+
+        .envelope .envelope-peek {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.3s ease, margin-top 0.3s ease;
+            opacity: 0;
+            margin-top: 0;
+        }
+
+        .envelope.opened .envelope-peek {
+            max-height: 300px;
+            opacity: 1;
+            margin-top: 16px;
+        }
+
+        .envelope .envelope-peek p {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--charcoal);
+            padding: 16px;
+            background: var(--cream);
+            border-radius: 12px;
+        }
+
+        .envelope.opened .envelope-label { color: var(--matcha-deep); }
+
+        /* ========== OTHERS SECTION ========== */
+        #others {
+            background: var(--cream);
+            padding: 60px 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .others-title {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: var(--matcha-dark);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .others-subtitle {
+            font-size: 0.9rem;
+            color: var(--charcoal-light);
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0.6;
+        }
+
+        /* Category header */
+        .category-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .category-header:first-of-type { margin-top: 0; }
+
+        .category-name {
+            font-family: 'Caveat', cursive;
+            font-size: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-name .cat-emoji { font-size: 1.3rem; }
+
+        .category-desc {
+            font-size: 0.8rem;
+            color: var(--charcoal-light);
+            opacity: 0.5;
+            margin-top: 4px;
+        }
+
+        /* --- BEAUTY: Polaroid Wall --- */
+        .beauty-wall {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            padding: 20px 24px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .beauty-polaroid {
+            background: var(--white);
+            padding: 8px 8px 28px 8px;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(61, 44, 44, 0.12);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(20px) rotate(var(--rot));
+            animation: polaroidIn 0.5s ease forwards;
+            animation-delay: var(--delay);
+        }
+
+        .beauty-polaroid:nth-child(odd) { width: 140px; }
+        .beauty-polaroid:nth-child(even) { width: 160px; }
+        .beauty-polaroid:nth-child(3n) { width: 130px; }
+
+        .beauty-polaroid:active {
+            transform: scale(1.05) rotate(0deg) !important;
+            box-shadow: 0 8px 30px rgba(61, 44, 44, 0.2);
+            z-index: 10;
+        }
+
+        .beauty-polaroid img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 2px;
+            display: block;
+        }
+
+        .beauty-polaroid .polaroid-text {
+            font-family: 'Caveat', cursive;
+            font-size: 0.75rem;
+            color: var(--charcoal-light);
+            text-align: center;
+            margin-top: 6px;
+            line-height: 1.2;
+        }
+
+        @keyframes polaroidIn {
+            to { opacity: 1; transform: translateY(0) rotate(var(--rot)); }
+        }
+
+        /* --- CLUMSY: Scattered Chaos --- */
+        .clumsy-grid {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            height: 750px;
+            overflow: hidden;
+        }
+
+        .clumsy-photo {
+            position: absolute;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(61, 44, 44, 0.15);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            animation: clumsyIn 0.4s ease forwards;
+            animation-delay: var(--delay);
+        }
+
+        .clumsy-photo:active {
+            transform: scale(1.1) rotate(0deg) !important;
+            box-shadow: 0 8px 30px rgba(61, 44, 44, 0.25);
+            z-index: 50 !important;
+        }
+
+        .clumsy-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .clumsy-photo .clumsy-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 6px;
+            background: linear-gradient(transparent, rgba(61, 44, 44, 0.65));
+            color: white;
+            font-size: 0.6rem;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .clumsy-photo:active .clumsy-label { opacity: 1; }
+
+        @keyframes clumsyIn {
+            from { opacity: 0; transform: scale(0.5) rotate(calc(var(--rot) + 20deg)); }
+            to { opacity: 1; transform: scale(1) rotate(var(--rot)); }
+        }
+
+        /* --- SLEEPPY: Horizontal Scroll Strip --- */
+        .sleeppy-strip {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 20px 24px 30px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .sleeppy-strip::-webkit-scrollbar { display: none; }
+
+        .sleeppy-card {
+            flex: 0 0 200px;
+            scroll-snap-align: center;
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(61, 44, 44, 0.08);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            opacity: 0;
+            animation: sleepyIn 0.6s ease forwards;
+            animation-delay: var(--delay);
+        }
+
+        .sleeppy-card:active { transform: scale(0.97); }
+
+        .sleeppy-card img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .sleeppy-card .sleepy-text {
+            padding: 12px;
+            font-family: 'Caveat', cursive;
+            font-size: 0.85rem;
+            color: var(--charcoal-light);
+            text-align: center;
+        }
+
+        @keyframes sleepyIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sleeppy-scroll-hint {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--charcoal-light);
+            opacity: 0.4;
+            margin-top: 4px;
+            animation: hintPulse 2s infinite;
+        }
+
+        @keyframes hintPulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.7; }
+        }
+
+        /* ========== PETALS ========== */
+        .petals-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 5;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .petal {
+            position: absolute;
+            top: -40px;
+            opacity: 0;
+            animation: petalFall var(--fall-dur) linear var(--delay) infinite;
+        }
+
+        .petal svg {
+            width: var(--size);
+            height: var(--size);
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
+        }
+
+        @keyframes petalFall {
+            0% {
+                opacity: 0;
+                transform: translateX(0) translateY(0) rotate(0deg) scale(0.8);
+            }
+            8% {
+                opacity: var(--max-opacity);
+            }
+            85% {
+                opacity: var(--max-opacity);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(var(--drift-x)) translateY(calc(100vh + 60px)) rotate(var(--spin)) scale(1);
+            }
+        }
+        #finale {
+            text-align: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, transparent, rgba(255, 248, 240, 0.5));
+        }
+
+        .finale-message {
+            font-family: 'Caveat', cursive;
+            font-size: 1.8rem;
+            line-height: 1.6;
+            color: var(--charcoal);
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .finale-message.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .cake-container {
+            width: 220px; height: 220px;
+            margin: 2rem auto;
+            opacity: 0;
+            transition: opacity 1s ease 0.3s;
+        }
+
+        .cake-container.visible { opacity: 1; }
+
+        .finale-footer {
+            font-size: 0.8rem;
+            color: var(--charcoal-light);
+            opacity: 0;
+            transition: opacity 1s ease 0.6s;
+            margin-top: 2rem;
+        }
+
+        .finale-footer.visible { opacity: 0.5; }
+
+        /* ========== MUSIC BUTTON ========== */
+        #music-btn {
+            position: fixed;
+            bottom: 24px; right: 24px;
+            z-index: 200;
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: var(--white);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            opacity: 1;
+            pointer-events: auto;
+            transition: transform 0.2s;
+        }
+
+        #music-btn:active { transform: scale(0.9); }
+
+        #music-btn.playing { animation: pulse 1.5s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 4px 15px rgba(168, 213, 186, 0.3); }
+            50% { box-shadow: 0 4px 25px rgba(168, 213, 186, 0.6); }
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (min-width: 768px) {
+            .rainbow-title { font-size: 4rem; }
+            .letter-paper { padding: 50px 48px; }
+            .photo-grid { gap: 20px; }
+        }
+
+        @media (max-width: 400px) {
+            .rainbow-title { font-size: 2.2rem; }
+            .section { padding: 40px 16px; }
+            .letter-paper { padding: 28px 20px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- PASSWORD GATE -->
+    <div id="password-gate">
+        <div class="gate-title">Ada sesuatu untuk Nurin...</div>
+        <div class="gate-input-wrap">
+            <input type="text" id="gate-input" class="gate-input" placeholder="Taip password di sini" autocomplete="off" autocapitalize="off" spellcheck="false">
+            <div class="gate-error" id="gate-error">Hmm, try again...</div>
+        </div>
+        <button class="gate-btn" id="gate-btn">Buka 💌</button>
+        <div class="gate-hint">hint: matcha 🍵</div>
+    </div>
+
+    <!-- Floating Petals -->
+    <div class="petals-container" id="petals-container"></div>
+
+    <!-- SECTION 1: OPENING -->
+    <section id="opening" class="section">
+        <div class="rainbow-title" id="rainbow-title">
+            <span class="word">Selamat Hari Jadi,</span><br>
+            <span class="word">Nurin! 🎂</span>
+        </div>
+        <p class="subtitle" id="opening-subtitle">Semoga hari ini seindah senyuman kau 🌸</p>
+        <div class="scroll-hint" id="scroll-hint">
+            <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+        </div>
+    </section>
+
+    <!-- SECTION 2: LETTER -->
+    <section id="letter" class="section">
+        <div class="section-content">
+            <div class="letter-paper">
+                <div class="letter-heading">Sebuah surat untuk kau 💚</div>
+                <div class="letter-body" id="letter-body">
+                    <span id="letter-text"></span>
+                    <span class="cursor" id="letter-cursor"></span>
+                </div>
+                <div class="letter-signature" id="letter-signature">— Amin 💛</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: HER JOURNEY -->
+    <section id="journey" class="section">
+        <div class="section-content">
+            <h2 class="journey-title">Perjalanan Kau 🌟</h2>
+            <div class="timeline">
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="era">Kecil-kecil</div>
+                        <div class="desc">Hidup dengan mak sampai umur 5. Lepas tu mak pergi. Nenek ambil alih — dan dia jaga Nurin sampai sekarang. Itu bond yang tak ternilai.</div>
+                    </div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="era">Sekolah Agama</div>
+                        <div class="desc">Primary sampai secondary. Kat sini, dia belajar survive. Dan jumpa kawan-kawan sejati — Ami, Nisa, Nadia, Meon. Orang yang kekal.</div>
+                    </div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="era">Pilihan Besar</div>
+                        <div class="desc">IPG atau KPM? Nampak mudah, tapi decision ni makan masa. Akhirnya dia pilih KPM. Dan itu the right call.</div>
+                    </div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="era">Titik Perubahan</div>
+                        <div class="desc">Internship jumpa — tapi transport? Puchong ke Bangi. Dua pilihan: naik kereta stepmother, atau belajar drive sendiri. Dia pilih dua-dua sekaligus. Brave.</div>
+                    </div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="era">Siapa Dia Sekarang</div>
+                        <div class="desc">Boleh drive. Pergi kerja sendiri. Strong, brave, independent. Sedikit clumsy — tapi pretty, cute, sweet, lovely. Malam-malam lepas kerja, training silat Waja Diri.</div>
+                    </div>
+                </div>
+                <div class="timeline-node">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="era">Masa Depan</div>
+                        <div class="desc">Orang dengan charisma, talent, charm. Semoga capai semua impian. Jaga kebahagiaan dan ketenangan kau selalu. Kau deserve semua yang baik.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: BEAUTY — POLAROID WALL -->
+    <section id="beauty-section">
+        <div class="category-header" style="margin-top:0">
+            <div class="category-name"><span class="cat-emoji">✨</span> Beauty <span class="cat-emoji">✨</span></div>
+            <div class="category-desc">Cantik tu dari dalam</div>
+        </div>
+        <div class="beauty-wall" id="beauty-wall"></div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
+        <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+        <img id="lightbox-img" src="" alt="">
+        <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+
+    <!-- SECTION 5: FOOD — FLOATING COLLAGE -->
+    <section id="gallery" class="section">
+        <h2 class="gallery-title">Makan Lagi? 🍜</h2>
+        <p class="gallery-subtitle">Tekan mana-mana foto untuk lihat</p>
+        <div class="collage-container" id="collage-container">
+            <!-- Photos injected by JS -->
+        </div>
+    </section>
+
+    <!-- SECTION 6: CLUMSY — SCATTERED CHAOS -->
+    <section id="clumsy-section">
+        <div class="category-header">
+            <div class="category-name"><span class="cat-emoji">🫠</span> Clumsy <span class="cat-emoji">🫠</span></div>
+            <div class="category-desc">Graceful? Never heard of her.</div>
+        </div>
+        <div class="clumsy-grid" id="clumsy-grid"></div>
+    </section>
+
+    <!-- SECTION 7: SLEEPPY — SCROLL STRIP -->
+    <section id="sleeppy-section">
+        <div class="category-header">
+            <div class="category-name"><span class="cat-emoji">😴</span> Sleeppy <span class="cat-emoji">😴</span></div>
+            <div class="category-desc">Tidur adalah hobi</div>
+        </div>
+        <div class="sleeppy-strip" id="sleeppy-strip"></div>
+        <div class="sleeppy-scroll-hint">← swipe →</div>
+    </section>
+
+    <!-- SECTION 8: SECRETS -->
+    <section id="secrets" class="section">
+        <div class="section-content">
+            <h2 class="secrets-title">Sesuatu Untuk Kau 🎁</h2>
+            <p class="secrets-subtitle">Tekan untuk buka satu-satu</p>
+            <div class="envelope-grid">
+                <div class="envelope" onclick="toggleEnvelope(this)">
+                    <div class="envelope-label">
+                        <div class="envelope-icon">💌</div>
+                        <span>Untuk kau yang selalu tersenyum</span>
+                    </div>
+                    <div class="envelope-peek">
+                        <p>Kau tahu tak, senyuman kau tu buat hari orang lain better? Teruskan jadi diri kau. Yang clumsy, yang sweet, yang real. Itu yang buat kau unik.</p>
+                    </div>
+                </div>
+                <div class="envelope" onclick="toggleEnvelope(this)">
+                    <div class="envelope-label">
+                        <div class="envelope-icon">🍵</div>
+                        <span>Matcha fact untuk kau</span>
+                    </div>
+                    <div class="envelope-peek">
+                        <p>Tahu tak matcha tu sebenarnya teh yang dikisar jadi serbuk? Macam kau — semua experience yang kau lalui tu, ia shapes kau jadi seorang yang amazing.</p>
+                    </div>
+                </div>
+                <div class="envelope" onclick="toggleEnvelope(this)">
+                    <div class="envelope-label">
+                        <div class="envelope-icon">🏆</div>
+                        <span>Satu perkara yang aku respect</span>
+                    </div>
+                    <div class="envelope-peek">
+                        <p>Kau belajar drive DAN mula internship pada masa yang sama. Ramai orang tak berani. Kau? Kau terus buat. Itu keberanian yang sebenar.</p>
+                    </div>
+                </div>
+                <div class="envelope" onclick="toggleEnvelope(this)">
+                    <div class="envelope-label">
+                        <div class="envelope-icon">🥊</div>
+                        <span>Prediction untuk kau</span>
+                    </div>
+                    <div class="envelope-peek">
+                        <p>Waja Diri ni baru permulaan. Lepas ni, kau akan buat benda-benda yang orang tak expect kau boleh buat. And you'll crush it.</p>
+                    </div>
+                </div>
+                <div class="envelope" onclick="toggleEnvelope(this)">
+                    <div class="envelope-label">
+                        <div class="envelope-icon">✨</div>
+                        <span>Untuk masa depan kau</span>
+                    </div>
+                    <div class="envelope-peek">
+                        <p>Semoga kau selalu ada peace dalam hati. Semoga kau jumpa apa yang kau cari. Dan semoga kau tahu — orang sekeliling kau bangga dengan kau. Termasuk aku.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 9: FINALE -->
+    <section id="finale" class="section">
+        <div class="cake-container" id="cake-container"></div>
+        <div class="finale-message" id="finale-message">
+            Di sini untuk kau, Nurin.<br>
+            Untuk setiap chapter yang kau dah tulis,<br>
+            dan setiap chapter yang belum mula lagi.<br><br>
+            <strong style="font-size:1.4em;">Happy Birthday! 🎂</strong>
+        </div>
+        <div class="finale-footer" id="finale-footer">Made with ❤️ by Amin</div>
+    </section>
+
+    <!-- MUSIC BUTTON -->
+    <button id="music-btn" onclick="toggleMusic()">🔇</button>
+    <audio id="bg-music" loop preload="auto">
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // ========== CONFIG ==========
+        const PASSWORD = 'matcha';
+        const LETTER_TEXT = `Selamat Hari Jadi Nurin!
+
+Selamat 20! Congrats dah survive bertahun-tahun before ni, aku bangga dengan kau! Jaga diri selalu. Semoga selalu berada dalam keadaan terbaik, always be yourself! Semoga kekal tersenyum selalu dan gembira sentiasa~`;
+
+        let isUnlocked = false;
+        let letterTyped = false;
+
+        // ========== THREE.JS BACKGROUND ==========
+        const canvas = document.getElementById('bg-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        camera.position.z = 30;
+
+        const particleCount = 150;
+        const particlesGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+
+        const colorPalette = [
+            new THREE.Color('#A8D5BA'),
+            new THREE.Color('#F4A7BB'),
+            new THREE.Color('#E8C170'),
+            new THREE.Color('#C8E6D0'),
+            new THREE.Color('#FCC5D3'),
+        ];
+
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 60;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 60;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 30;
+            const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+            colors[i * 3] = color.r;
+            colors[i * 3 + 1] = color.g;
+            colors[i * 3 + 2] = color.b;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.3,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending,
+        });
+
+        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particles);
+
+        function animateParticles() {
+            requestAnimationFrame(animateParticles);
+            const pos = particlesGeometry.attributes.position.array;
+            for (let i = 0; i < particleCount; i++) {
+                pos[i * 3 + 1] += 0.01;
+                if (pos[i * 3 + 1] > 30) pos[i * 3 + 1] = -30;
+            }
+            particlesGeometry.attributes.position.needsUpdate = true;
+            particles.rotation.y += 0.001;
+            renderer.render(scene, camera);
+        }
+        animateParticles();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // ========== 3D BURNT CHEESECAKE ==========
+        function createCake() {
+            const cakeContainer = document.getElementById('cake-container');
+            if (!cakeContainer || cakeContainer.querySelector('canvas')) return;
+
+            const cakeScene = new THREE.Scene();
+            const cakeCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+            const cakeRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
+            cakeRenderer.setSize(220, 220);
+            cakeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            cakeContainer.appendChild(cakeRenderer.domElement);
+
+            // Base
+            const baseGeo = new THREE.CylinderGeometry(2.5, 2.5, 1.2, 32);
+            const baseMat = new THREE.MeshStandardMaterial({ color: 0xF5E6C8, roughness: 0.8 });
+            const cake = new THREE.Mesh(baseGeo, baseMat);
+            cakeScene.add(cake);
+
+            // Burnt top
+            const topGeo = new THREE.CylinderGeometry(2.5, 2.5, 0.15, 32);
+            const topMat = new THREE.MeshStandardMaterial({ color: 0xD4A043, roughness: 0.6 });
+            const top = new THREE.Mesh(topGeo, topMat);
+            top.position.y = 0.67;
+            cakeScene.add(top);
+
+            // Center dent
+            const dentGeo = new THREE.CylinderGeometry(1.5, 1.5, 0.2, 32);
+            const dentMat = new THREE.MeshStandardMaterial({ color: 0xC89840, roughness: 0.7 });
+            const dent = new THREE.Mesh(dentGeo, dentMat);
+            dent.position.y = 0.6;
+            dent.scale.y = 0.3;
+            cakeScene.add(dent);
+
+            // Candle
+            const candleGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.2, 8);
+            const candleMat = new THREE.MeshStandardMaterial({ color: 0xF4A7BB });
+            const candle = new THREE.Mesh(candleGeo, candleMat);
+            candle.position.y = 1.3;
+            cakeScene.add(candle);
+
+            // Flame
+            const flameGeo = new THREE.SphereGeometry(0.12, 8, 8);
+            const flameMat = new THREE.MeshBasicMaterial({ color: 0xFFD700 });
+            const flame = new THREE.Mesh(flameGeo, flameMat);
+            flame.position.y = 2.0;
+            flame.scale.set(1, 1.5, 1);
+            cakeScene.add(flame);
+
+            // Lighting
+            cakeScene.add(new THREE.AmbientLight(0xffffff, 0.6));
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 10, 5);
+            cakeScene.add(dirLight);
+
+            cakeCamera.position.set(0, 2.5, 6);
+            cakeCamera.lookAt(0, 0.5, 0);
+
+            function animateCake() {
+                requestAnimationFrame(animateCake);
+                cake.rotation.y += 0.005;
+                flame.scale.y = 1.3 + Math.sin(Date.now() * 0.005) * 0.2;
+                cakeRenderer.render(cakeScene, cakeCamera);
+            }
+            animateCake();
+        }
+
+        // ========== PASSWORD GATE ==========
+        const gateInput = document.getElementById('gate-input');
+        const gateBtn = document.getElementById('gate-btn');
+        const gateError = document.getElementById('gate-error');
+        const gate = document.getElementById('password-gate');
+
+        function unlock() {
+            const value = gateInput.value.trim().toLowerCase();
+            if (value === PASSWORD) {
+                isUnlocked = true;
+                gate.classList.add('unlocked');
+
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 150,
+                        spread: 90,
+                        origin: { y: 0.6 },
+                        colors: ['#A8D5BA', '#F4A7BB', '#E8C170', '#FCC5D3', '#C8E6D0'],
+                    });
+                }, 300);
+
+                setTimeout(() => { gate.style.display = 'none'; }, 1000);
+            } else {
+                gateError.classList.add('show');
+                gateInput.value = '';
+                gateInput.focus();
+                gateInput.style.animation = 'none';
+                gateInput.offsetHeight;
+                gateInput.style.animation = 'shake 0.4s ease';
+            }
+        }
+
+        gateBtn.addEventListener('click', unlock);
+        gateInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') unlock(); });
+
+        // Shake keyframes
+        const shakeStyle = document.createElement('style');
+        shakeStyle.textContent = `@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}`;
+        document.head.appendChild(shakeStyle);
+
+        // ========== TYPEWRITER LETTER ==========
+        function typeLetter() {
+            if (letterTyped) return;
+            letterTyped = true;
+            const textEl = document.getElementById('letter-text');
+            const cursor = document.getElementById('letter-cursor');
+            const signature = document.getElementById('letter-signature');
+            let i = 0;
+
+            function type() {
+                if (i < LETTER_TEXT.length) {
+                    textEl.textContent += LETTER_TEXT.charAt(i);
+                    i++;
+                    setTimeout(type, 40);
+                } else {
+                    cursor.style.display = 'none';
+                    signature.classList.add('visible');
+                    confetti({ particleCount: 30, spread: 60, origin: { y: 0.8 }, colors: ['#A8D5BA', '#F4A7BB'] });
+                }
+            }
+            type();
+        }
+
+        // ========== CLICK-TO-REVEAL ==========
+        function toggleEnvelope(el) {
+            const wasOpened = el.classList.contains('opened');
+            el.classList.toggle('opened');
+            if (!wasOpened) {
+                const rect = el.getBoundingClientRect();
+                confetti({
+                    particleCount: 40,
+                    spread: 50,
+                    origin: { x: rect.left / window.innerWidth + 0.1, y: rect.top / window.innerHeight + 0.05 },
+                    colors: ['#A8D5BA', '#F4A7BB', '#E8C170'],
+                });
+            }
+        }
+
+        // ========== MUSIC ==========
+        let musicPlaying = false;
+        const audio = document.getElementById('bg-music');
+        const musicBtn = document.getElementById('music-btn');
+
+        function startMusic() {
+            if (musicPlaying) return;
+            audio.play().then(() => {
+                musicPlaying = true;
+                musicBtn.textContent = '🎵';
+                musicBtn.classList.add('playing');
+            }).catch(() => {});
+        }
+
+        // Auto-play on first user interaction (scroll, tap, etc.)
+        ['scroll', 'touchstart', 'click', 'keydown'].forEach(evt => {
+            document.addEventListener(evt, function onFirstInteraction() {
+                startMusic();
+                document.removeEventListener(evt, onFirstInteraction);
+            }, { once: true });
+        });
+
+        function toggleMusic() {
+            if (musicPlaying) {
+                audio.pause();
+                musicBtn.textContent = '🔇';
+                musicBtn.classList.remove('playing');
+            } else {
+                audio.play().then(() => {
+                    musicPlaying = true;
+                    musicBtn.textContent = '🎵';
+                    musicBtn.classList.add('playing');
+                }).catch(() => {});
+            }
+            musicPlaying = !musicPlaying;
+        }
+
+        // ========== CONFETTI ON LOAD ==========
+        setTimeout(() => {
+            confetti({
+                particleCount: 120,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#A8D5BA', '#F4A7BB', '#E8C170', '#FCC5D3', '#C8E6D0', '#FFFFFF'],
+            });
+            setTimeout(() => {
+                confetti({
+                    particleCount: 60,
+                    spread: 70,
+                    origin: { x: 0.3, y: 0.5 },
+                    colors: ['#A8D5BA', '#F4A7BB', '#E8C170'],
+                });
+            }, 400);
+            setTimeout(() => {
+                confetti({
+                    particleCount: 60,
+                    spread: 70,
+                    origin: { x: 0.7, y: 0.5 },
+                    colors: ['#F4A7BB', '#E8C170', '#C8E6D0'],
+                });
+            }, 800);
+        }, 600);
+
+        // ========== FADE-IN OPENING ELEMENTS ==========
+        // Title fades in after confetti starts
+        setTimeout(() => {
+            document.getElementById('rainbow-title').style.opacity = '1';
+            document.getElementById('rainbow-title').style.transform = 'translateY(0)';
+        }, 300);
+        // Subtitle follows
+        setTimeout(() => {
+            document.getElementById('opening-subtitle').style.opacity = '0.8';
+            document.getElementById('opening-subtitle').style.transform = 'translateY(0)';
+        }, 1000);
+        // Scroll hint last
+        setTimeout(() => {
+            document.getElementById('scroll-hint').style.opacity = '0.5';
+        }, 1800);
+
+        // ========== OTHERS: BEAUTY POLAROID WALL ==========
+        const beautyPhotos = [
+            { file: 'others/beauty/IMG_20260819_180331.jpg', text: 'Glow up' },
+            { file: 'others/beauty/IMG_20260822_212719.jpg', text: 'Natural beauty' },
+            { file: 'others/beauty/IMG_20260822_214412.jpg', text: 'Cantik sangat' },
+            { file: 'others/beauty/MVIMG_20260415_123550.jpg', text: 'Pretty girl' },
+            { file: 'others/beauty/MVIMG_20260503_212621.jpg', text: 'Effortless' },
+            { file: 'others/beauty/MVIMG_20260704_223457.jpg', text: 'Glow' },
+            { file: 'others/beauty/MVIMG_20260731_173155.jpg', text: 'Angel' },
+            { file: 'others/beauty/MVIMG_20260823_222926.jpg', text: 'Cantik gitu' },
+            { file: 'others/beauty/MVIMG_20260906_192048.jpg', text: 'Always pretty' },
+        ];
+
+        function buildBeautyWall() {
+            const wall = document.getElementById('beauty-wall');
+            if (!wall || wall.children.length > 0) return;
+
+            beautyPhotos.forEach((photo, i) => {
+                const card = document.createElement('div');
+                card.className = 'beauty-polaroid';
+                const rot = (Math.random() - 0.5) * 10;
+                const delay = i * 0.1;
+                card.style.setProperty('--rot', rot + 'deg');
+                card.style.setProperty('--delay', delay + 's');
+
+                const img = document.createElement('img');
+                img.src = photo.file;
+                img.alt = photo.text;
+                img.loading = 'lazy';
+                img.onerror = function() { this.parentElement.style.display = 'none'; };
+
+                const text = document.createElement('div');
+                text.className = 'polaroid-text';
+                text.textContent = photo.text;
+
+                card.appendChild(img);
+                card.appendChild(text);
+                card.addEventListener('click', () => openLightbox(photo.file, photo.text));
+                wall.appendChild(card);
+            });
+        }
+
+        // ========== OTHERS: CLUMSY SCATTERED CHAOS ==========
+        const clumsyPhotos = [
+            { file: 'others/clumsy/IMG_20260818_192408.jpg', label: 'Tersandung?' },
+            { file: 'others/clumsy/MVIMG_20260418_224155.jpg', label: 'Oops' },
+            { file: 'others/clumsy/MVIMG_20260524_152434.jpg', label: 'Jatuh lagi' },
+            { file: 'others/clumsy/MVIMG_20260701_110941.jpg', label: 'Graceful mode: OFF' },
+            { file: 'others/clumsy/MVIMG_20260705_121354.jpg', label: 'Always clumsy' },
+            { file: 'others/clumsy/MVIMG_20260708_190410.jpg', label: 'Bukan salah aku' },
+            { file: 'others/clumsy/MVIMG_20260718_160824.jpg', label: 'Aduh' },
+            { file: 'others/clumsy/MVIMG_20260725_201920.jpg', label: 'Tak try pun' },
+            { file: 'others/clumsy/MVIMG_20260827_101952.jpg', label: 'Whoopsie' },
+            { file: 'others/clumsy/MVIMG_20260827_185906.jpg', label: 'Fallen angel' },
+            { file: 'others/clumsy/MVIMG_20260830_083633.jpg', label: 'Ke laut' },
+            { file: 'others/clumsy/Screenshot_2026-09-04-09-36-57-030_com.whatsapp.jpg', label: 'Meme sendiri' },
+            { file: 'others/clumsy/Screenshot_2026-09-04-09-37-04-133_com.whatsapp.jpg', label: 'Proof' },
+        ];
+
+        function buildClumsyGrid() {
+            const grid = document.getElementById('clumsy-grid');
+            if (!grid || grid.children.length > 0) return;
+
+            const gridW = grid.offsetWidth;
+            const gridH = grid.offsetHeight;
+            const padding = 10;
+            const placed = []; // track {x, y, w, h} of placed photos
+
+            function overlaps(rect) {
+                for (const p of placed) {
+                    if (!(rect.x + rect.w + 8 < p.x || rect.x > p.x + p.w + 8 ||
+                          rect.y + rect.h + 8 < p.y || rect.y > p.y + p.h + 8)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function findPosition(w, h) {
+                for (let attempt = 0; attempt < 60; attempt++) {
+                    const x = padding + Math.random() * (gridW - w - padding * 2);
+                    const y = padding + Math.random() * (gridH - h - padding * 2);
+                    const rect = { x, y, w, h };
+                    if (!overlaps(rect)) return rect;
+                }
+                // fallback: place it anyway
+                return { x: padding + Math.random() * (gridW - w - padding * 2), y: padding + Math.random() * (gridH - h - padding * 2) };
+            }
+
+            clumsyPhotos.forEach((photo, i) => {
+                const el = document.createElement('div');
+                el.className = 'clumsy-photo';
+
+                // Random sizes — varying more for visual chaos
+                const w = 80 + Math.random() * 90; // 80-170px
+                const h = 80 + Math.random() * 90;
+
+                const pos = findPosition(w, h);
+                placed.push(pos);
+
+                // Wild rotation
+                const rot = (Math.random() - 0.5) * 40; // ±20 degrees — more chaos
+
+                el.style.cssText = `
+                    width: ${w}px;
+                    height: ${h}px;
+                    left: ${pos.x}px;
+                    top: ${pos.y}px;
+                    --rot: ${rot}deg;
+                    --delay: ${i * 0.06}s;
+                    z-index: ${5 + i};
+                `;
+
+                const img = document.createElement('img');
+                img.src = photo.file;
+                img.alt = photo.label;
+                img.loading = 'lazy';
+                img.onerror = function() { this.parentElement.style.display = 'none'; };
+
+                const label = document.createElement('div');
+                label.className = 'clumsy-label';
+                label.textContent = photo.label;
+
+                el.appendChild(img);
+                el.appendChild(label);
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openLightbox(photo.file, photo.label);
+                });
+                grid.appendChild(el);
+            });
+        }
+
+        // ========== OTHERS: SLEEPPY SCROLL STRIP ==========
+        const sleeppyPhotos = [
+            { file: 'others/sleeppy/IMG_20260806_192015.jpg', text: 'Zzz...' },
+            { file: 'others/sleeppy/IMG_20260813_182841.jpg', text: 'Tidur lagi' },
+            { file: 'others/sleeppy/MVIMG_20260802_154235.jpg', text: 'Deep sleep' },
+            { file: 'others/sleeppy/MVIMG_20260830_162450.jpg', text: 'Nap time' },
+            { file: 'others/sleeppy/MVIMG_20260907_221020.jpg', text: 'Malam-malam...' },
+            { file: 'others/sleeppy/MVIMG_20260908_184043.jpg', text: 'Penat sangat' },
+        ];
+
+        function buildSleeppyStrip() {
+            const strip = document.getElementById('sleeppy-strip');
+            if (!strip || strip.children.length > 0) return;
+
+            sleeppyPhotos.forEach((photo, i) => {
+                const card = document.createElement('div');
+                card.className = 'sleeppy-card';
+                card.style.setProperty('--delay', (i * 0.12) + 's');
+
+                const img = document.createElement('img');
+                img.src = photo.file;
+                img.alt = photo.text;
+                img.loading = 'lazy';
+                img.onerror = function() { this.parentElement.style.display = 'none'; };
+
+                const text = document.createElement('div');
+                text.className = 'sleepy-text';
+                text.textContent = photo.text;
+
+                card.appendChild(img);
+                card.appendChild(text);
+                card.addEventListener('click', () => openLightbox(photo.file, photo.text));
+                strip.appendChild(card);
+            });
+        }
+
+        // ========== TRIGGER BUILDERS ON SCROLL ==========
+        // Beauty wall
+        let beautyBuilt = false;
+        const beautyObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !beautyBuilt) {
+                    beautyBuilt = true;
+                    setTimeout(buildBeautyWall, 200);
+                }
+            });
+        }, { threshold: 0.1 });
+        const beautyEl = document.getElementById('beauty-section');
+        if (beautyEl) beautyObserver.observe(beautyEl);
+
+        // Clumsy grid
+        let clumsyBuilt = false;
+        const clumsyObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !clumsyBuilt) {
+                    clumsyBuilt = true;
+                    setTimeout(buildClumsyGrid, 200);
+                }
+            });
+        }, { threshold: 0.1 });
+        const clumsyEl = document.getElementById('clumsy-section');
+        if (clumsyEl) clumsyObserver.observe(clumsyEl);
+
+        // Sleeppy strip
+        let sleeppyBuilt = false;
+        const sleeppyObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !sleeppyBuilt) {
+                    sleeppyBuilt = true;
+                    setTimeout(buildSleeppyStrip, 200);
+                }
+            });
+        }, { threshold: 0.1 });
+        const sleeppyEl = document.getElementById('sleeppy-section');
+        if (sleeppyEl) sleeppyObserver.observe(sleeppyEl);
+
+        // Rebuild clumsy grid on resize
+        let clumsyResizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(clumsyResizeTimer);
+            clumsyResizeTimer = setTimeout(() => {
+                const grid = document.getElementById('clumsy-grid');
+                if (grid && grid.children.length > 0) {
+                    grid.innerHTML = '';
+                    buildClumsyGrid();
+                }
+            }, 400);
+        });
+
+        // ========== FLOATING PETALS ==========
+        const petalContainer = document.getElementById('petals-container');
+
+        // SVG petal shapes
+        const petalTypes = [
+            // Baby's breath — small white cluster
+            `<svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3.5" fill="#FFFFFF" opacity="0.9"/><circle cx="8" cy="13" r="2.5" fill="#FFFFFF" opacity="0.7"/><circle cx="16" cy="13" r="2.5" fill="#FFFFFF" opacity="0.7"/><circle cx="12" cy="15" r="2" fill="#FFF8F0" opacity="0.6"/><line x1="12" y1="15" x2="12" y2="22" stroke="#A8D5BA" stroke-width="1" opacity="0.5"/></svg>`,
+            // Baby's breath — single small bloom
+            `<svg viewBox="0 0 20 20"><circle cx="10" cy="8" r="4" fill="#FFFFFF" opacity="0.85"/><circle cx="7" cy="10" r="2.5" fill="#FFF8F0" opacity="0.6"/><circle cx="13" cy="10" r="2.5" fill="#FFF8F0" opacity="0.6"/><line x1="10" y1="12" x2="10" y2="18" stroke="#C8E6D0" stroke-width="0.8" opacity="0.4"/></svg>`,
+            // Sunflower petal — elongated yellow
+            `<svg viewBox="0 0 16 30"><ellipse cx="8" cy="12" rx="5" ry="11" fill="#E8C170" opacity="0.85" transform="rotate(-10 8 12)"/><ellipse cx="8" cy="13" rx="3.5" ry="9" fill="#F0D080" opacity="0.5" transform="rotate(5 8 13)"/></svg>`,
+            // Sunflower petal — wider
+            `<svg viewBox="0 0 18 28"><ellipse cx="9" cy="11" rx="6" ry="10" fill="#E8C170" opacity="0.8" transform="rotate(8 9 11)"/><ellipse cx="9" cy="12" rx="4" ry="8" fill="#F5D890" opacity="0.4"/></svg>`,
+            // Baby's breath — tiny dot cluster
+            `<svg viewBox="0 0 14 14"><circle cx="7" cy="5" r="2.5" fill="#FFFFFF" opacity="0.8"/><circle cx="4" cy="8" r="2" fill="#FFF8F0" opacity="0.6"/><circle cx="10" cy="8" r="2" fill="#FFF8F0" opacity="0.6"/></svg>`,
+        ];
+
+        function spawnPetal() {
+            const el = document.createElement('div');
+            el.className = 'petal';
+
+            const type = petalTypes[Math.floor(Math.random() * petalTypes.length)];
+            el.innerHTML = type;
+
+            // Random properties
+            const size = 16 + Math.random() * 22; // 16-38px
+            const startX = Math.random() * 100; // % across screen
+            const fallDur = 6 + Math.random() * 8; // 6-14 seconds
+            const delay = Math.random() * 2; // 0-2s stagger
+            const driftX = (Math.random() - 0.5) * 200; // -100 to +100px horizontal drift
+            const spin = (Math.random() - 0.5) * 720; // -360 to +360 degrees
+            const maxOpacity = 0.4 + Math.random() * 0.4; // 0.4-0.8
+
+            el.style.cssText = `
+                left: ${startX}%;
+                --size: ${size}px;
+                --fall-dur: ${fallDur}s;
+                --delay: ${delay}s;
+                --drift-x: ${driftX}px;
+                --spin: ${spin}deg;
+                --max-opacity: ${maxOpacity};
+            `;
+
+            petalContainer.appendChild(el);
+        }
+
+        // Spawn petals — gentle, not overwhelming
+        function startPetals() {
+            // Small initial batch
+            for (let i = 0; i < 8; i++) {
+                spawnPetal();
+            }
+            // Slow trickle
+            setInterval(() => {
+                if (petalContainer.children.length < 15) {
+                    spawnPetal();
+                }
+            }, 2500);
+        }
+        startPetals();
+
+        // ========== FLOATING COLLAGE ==========
+        const foodPhotos = [
+            { file: 'food/IMG_20260802_204008.jpg', caption: 'Muka bila nampak makanan' },
+            { file: 'food/IMG_20260806_131047.jpg', caption: 'Lunch date dengan diri sendiri' },
+            { file: 'food/IMG_20260816_212519.jpg', caption: 'Dinner time' },
+            { file: 'food/IMG_20260817_214423.jpg', caption: 'Makan lagi?' },
+            { file: 'food/IMG_20260818_090700.jpg', caption: 'Pagi-pagi dah makan' },
+            { file: 'food/IMG_20260822_202111.jpg', caption: 'Malam-malam jajan' },
+            { file: 'food/MVIMG_20260502_205035.jpg', caption: 'Priority: makanan dulu' },
+            { file: 'food/MVIMG_20260515_105506.jpg', caption: 'Brunch vibes' },
+            { file: 'food/MVIMG_20260516_160017.jpg', caption: 'Food coma loading...' },
+            { file: 'food/MVIMG_20260718_221856.jpg', caption: 'Late night snack' },
+            { file: 'food/MVIMG_20260825_210431.jpg', caption: 'Nampak sedap, terus ambil' },
+            { file: 'food/MVIMG_20260826_193441.jpg', caption: 'Makan dengan kawan' },
+            { file: 'food/MVIMG_20260829_113410.jpg', caption: 'Muka happy bila makanan sampai' },
+            { file: 'food/MVIMG_20260831_141953.jpg', caption: 'Weekend makan-makan' },
+            { file: 'food/MVIMG_20260906_130930.jpg', caption: 'Makan lagi, nak?' },
+            { file: 'food/MVIMG_20260907_210213.jpg', caption: 'Malam ni makan apa pula' },
+        ];
+
+        function buildCollage() {
+            const container = document.getElementById('collage-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const containerW = container.offsetWidth;
+            const containerH = container.offsetHeight;
+
+            // Grid layout: arrange photos in a scattered grid pattern
+            const cols = 4;
+            const rows = 5;
+            const cellW = containerW / cols;
+            const cellH = containerH / rows;
+
+            foodPhotos.forEach((photo, i) => {
+                const el = document.createElement('div');
+                el.className = 'collage-photo';
+
+                // Size: vary between small and medium
+                const isSmall = i % 3 === 0;
+                const w = isSmall ? cellW * 0.7 : cellW * 0.85;
+                const h = isSmall ? cellH * 0.75 : cellH * 0.9;
+
+                // Position in grid with random offset
+                const col = i % cols;
+                const row = Math.floor(i / cols);
+                const offsetX = (Math.random() - 0.5) * cellW * 0.3;
+                const offsetY = (Math.random() - 0.5) * cellH * 0.3;
+                const x = col * cellW + (cellW - w) / 2 + offsetX;
+                const y = row * cellH + (cellH - h) / 2 + offsetY;
+
+                // Random rotation
+                const rot = (Math.random() - 0.5) * 12;
+
+                // Random float parameters
+                const driftX = (Math.random() - 0.5) * 15;
+                const driftY = (Math.random() - 0.5) * 12;
+                const dur = 4 + Math.random() * 4; // 4-8 seconds
+                const delay = Math.random() * -8; // stagger
+
+                el.style.cssText = `
+                    width: ${w}px;
+                    height: ${h}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    --rot: ${rot}deg;
+                    --drift-x: ${driftX}px;
+                    --drift-y: ${driftY}px;
+                    --dur: ${dur}s;
+                    --delay: ${delay}s;
+                    z-index: ${10 + i};
+                `;
+
+                const img = document.createElement('img');
+                img.src = photo.file;
+                img.alt = photo.caption;
+                img.loading = 'lazy';
+                img.onerror = function() {
+                    this.parentElement.style.display = 'none';
+                };
+
+                const caption = document.createElement('div');
+                caption.className = 'photo-caption-float';
+                caption.textContent = photo.caption;
+
+                el.appendChild(img);
+                el.appendChild(caption);
+
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openLightbox(photo.file, photo.caption);
+                });
+
+                container.appendChild(el);
+            });
+        }
+
+        // Lightbox
+        function openLightbox(src, caption) {
+            const lb = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            const cap = document.getElementById('lightbox-caption');
+            img.src = src;
+            cap.textContent = caption;
+            lb.classList.add('open');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('open');
+        }
+
+        // Escape key closes lightbox
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        // Rebuild collage when gallery scrolls into view
+        let collageBuilt = false;
+        const galleryObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !collageBuilt) {
+                    collageBuilt = true;
+                    // Small delay to let section layout settle
+                    setTimeout(buildCollage, 200);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        const galleryEl = document.getElementById('gallery');
+        if (galleryEl) galleryObserver.observe(galleryEl);
+
+        // Also rebuild on resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (collageBuilt) buildCollage();
+            }, 300);
+        });
+
+        // ========== SCROLL OBSERVER ==========
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+
+                    if (id === 'letter') typeLetter();
+
+                    if (id === 'journey') {
+                        entry.target.querySelectorAll('.timeline-node').forEach((node, i) => {
+                            setTimeout(() => node.classList.add('visible'), i * 200);
+                        });
+                    }
+
+                    if (id === 'finale') {
+                        setTimeout(() => {
+                            document.getElementById('cake-container').classList.add('visible');
+                            createCake();
+                        }, 300);
+                        setTimeout(() => document.getElementById('finale-message').classList.add('visible'), 800);
+                        setTimeout(() => {
+                            document.getElementById('finale-footer').classList.add('visible');
+                            confetti({ particleCount: 200, spread: 120, origin: { y: 0.5 }, colors: ['#A8D5BA', '#F4A7BB', '#E8C170', '#FCC5D3', '#FFFFFF'] });
+                            setTimeout(() => confetti({ particleCount: 100, spread: 80, origin: { x: 0.3, y: 0.5 }, colors: ['#A8D5BA', '#F4A7BB', '#E8C170'] }), 500);
+                            setTimeout(() => confetti({ particleCount: 100, spread: 80, origin: { x: 0.7, y: 0.5 }, colors: ['#A8D5BA', '#F4A7BB', '#E8C170'] }), 1000);
+                        }, 1200);
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.section').forEach(s => observer.observe(s));
+        gateInput.focus();
+    </script>
+</body>
+</html>
